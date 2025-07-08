@@ -74,22 +74,9 @@ npm install
 yarn install
 ```
 
-### 3. Set Up Environment Variables
+### 3. Environment Configuration
 
-1. Copy the example environment file:
-```bash
-cp .env.example .env
-```
-
-2. Get your TMDb API key:
-   - Go to [TMDb API Settings](https://www.themoviedb.org/settings/api)
-   - Create a free account if you don't have one
-   - Generate an API key
-
-3. Update the `.env` file:
-```bash
-VITE_TMDB_API_KEY=your_actual_api_key_here
-```
+The project is already configured with a TMDb API key. The `.env` file will be automatically created during setup with the necessary configuration.
 
 ### 4. Start the Development Server
 
@@ -246,7 +233,14 @@ This project is licensed under the MIT License.
 - TMDb API rate limiting may apply for heavy usage
 - Some movie/TV show images may not load if TMDb servers are down
 
-## 🔮 Future Enhancements
+## � API Configuration
+
+This project is configured with a TMDb API key for demonstration purposes. In production:
+- Use your own TMDb API key from [TMDb API Settings](https://www.themoviedb.org/settings/api)
+- Store API keys securely using environment variables
+- Never commit API keys to version control
+
+## �🔮 Future Enhancements
 
 - [ ] User watchlists
 - [ ] Social features (following users)

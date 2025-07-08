@@ -112,10 +112,10 @@ interface AuthContextType {
    npm install
    ```
 
-2. **Configure Environment:**
+2. **Environment Setup:**
    ```bash
-   cp .env.example .env
-   # Edit .env and add your TMDb API key
+   # Environment will be automatically configured during setup
+   # TMDb API key is already included
    ```
 
 3. **Start Development:**
@@ -171,7 +171,7 @@ npm run build        # Build for production
 npm run preview      # Preview production build
 ```
 
-The project is now fully converted to TypeScript with a solid foundation for building out the remaining features. All core services, types, and structure are in place for rapid development of the complete ScreenScene application.
+The project is now fully converted to TypeScript with a solid foundation for building out the remaining features. All core services, types, and structure are in place for rapid development of the complete ScreenScene application. **The TMDb API key is already configured and ready to use.**
 
 ---
 

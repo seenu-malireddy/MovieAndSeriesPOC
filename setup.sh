@@ -11,8 +11,9 @@ npm install
 if [ ! -f .env ]; then
     echo "🔧 Creating environment file..."
     cp .env.example .env
-    echo "⚠️  Please update .env file with your TMDb API key"
-    echo "   Get your API key from: https://www.themoviedb.org/settings/api"
+    echo "✅ Environment file created with TMDb API key"
+else
+    echo "✅ Environment file already exists"
 fi
 
 # Type check
@@ -23,9 +24,9 @@ echo ""
 echo "✅ Setup complete!"
 echo ""
 echo "📋 Next steps:"
-echo "1. Update the VITE_TMDB_API_KEY in .env file"
-echo "2. Run 'npm run dev' to start the development server"
-echo "3. Open http://localhost:3000 in your browser"
+echo "1. Run 'npm run dev' to start the development server"
+echo "2. Open http://localhost:3000 in your browser"
+echo "3. Start browsing movies and TV shows!"
 echo ""
 echo "🔗 Useful commands:"
 echo "   npm run dev      - Start development server"
