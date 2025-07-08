@@ -1,7 +1,9 @@
+import { Review, ReviewData, ReviewStats } from '../types'
+
 // Reviews Service - manages user reviews for movies and TV shows
 export const reviewsService = {
   // Get all reviews for a specific item
-  getReviews: (itemId, mediaType) => {
+  getReviews: (itemId: number, mediaType: 'movie' | 'tv'): Review[] => {
     if (!itemId || !mediaType) return []
     
     try {
@@ -14,7 +16,7 @@ export const reviewsService = {
   },
 
   // Get user's review for a specific item
-  getUserReview: (userId, itemId, mediaType) => {
+  getUserReview: (userId: string, itemId: number, mediaType: 'movie' | 'tv'): Review | null => {
     if (!userId || !itemId || !mediaType) return null
     
     const reviews = reviewsService.getReviews(itemId, mediaType)
@@ -22,14 +24,14 @@ export const reviewsService = {
   },
 
   // Add or update a review
-  addReview: (userId, itemId, mediaType, reviewData) => {
+  addReview: (userId: string, itemId: number, mediaType: 'movie' | 'tv', reviewData: ReviewData): Review | false => {
     if (!userId || !itemId || !mediaType || !reviewData) return false
     
     try {
       const reviews = reviewsService.getReviews(itemId, mediaType)
       const existingReviewIndex = reviews.findIndex(review => review.userId === userId)
       
-      const review = {
+      const review: Review = {
         id: existingReviewIndex !== -1 ? reviews[existingReviewIndex].id : Date.now().toString(),
         userId,
         itemId,
@@ -67,7 +69,7 @@ export const reviewsService = {
   },
 
   // Delete a review
-  deleteReview: (userId, itemId, mediaType, reviewId) => {
+  deleteReview: (userId: string, itemId: number, mediaType: 'movie' | 'tv', reviewId: string): boolean => {
     if (!userId || !itemId || !mediaType || !reviewId) return false
     
     try {
@@ -92,7 +94,7 @@ export const reviewsService = {
   },
 
   // Get all reviews by a user
-  getUserReviews: (userId) => {
+  getUserReviews: (userId: string): Review[] => {
     if (!userId) return []
     
     try {
@@ -105,7 +107,7 @@ export const reviewsService = {
   },
 
   // Get review statistics for an item
-  getReviewStats: (itemId, mediaType) => {
+  getReviewStats: (itemId: number, mediaType: 'movie' | 'tv'): ReviewStats => {
     const reviews = reviewsService.getReviews(itemId, mediaType)
     
     if (reviews.length === 0) {
@@ -119,7 +121,7 @@ export const reviewsService = {
     const ratings = reviews.map(review => review.rating)
     const averageRating = ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
     
-    const ratingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+    const ratingDistribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
     ratings.forEach(rating => {
       ratingDistribution[rating] = (ratingDistribution[rating] || 0) + 1
     })
@@ -132,7 +134,7 @@ export const reviewsService = {
   },
 
   // Mark review as helpful/not helpful
-  markReviewHelpful: (reviewId, itemId, mediaType, isHelpful, userId) => {
+  markReviewHelpful: (reviewId: string, itemId: number, mediaType: 'movie' | 'tv', isHelpful: boolean, userId: string): boolean => {
     if (!reviewId || !itemId || !mediaType || !userId) return false
     
     try {
@@ -143,7 +145,7 @@ export const reviewsService = {
       
       // Get or create helpfulness tracking
       const helpfulnessKey = `screenscene_helpfulness_${reviewId}`
-      const helpfulness = JSON.parse(localStorage.getItem(helpfulnessKey) || '{}')
+      const helpfulness: Record<string, boolean> = JSON.parse(localStorage.getItem(helpfulnessKey) || '{}')
       
       // Check if user already voted
       if (helpfulness[userId]) return false
@@ -173,7 +175,7 @@ export const reviewsService = {
   },
 
   // Private helper methods
-  _addToUserReviews: (userId, review) => {
+  _addToUserReviews: (userId: string, review: Review): void => {
     try {
       const userReviews = reviewsService.getUserReviews(userId)
       const existingIndex = userReviews.findIndex(r => r.id === review.id)
@@ -190,7 +192,7 @@ export const reviewsService = {
     }
   },
 
-  _removeFromUserReviews: (userId, reviewId) => {
+  _removeFromUserReviews: (userId: string, reviewId: string): void => {
     try {
       const userReviews = reviewsService.getUserReviews(userId)
       const updatedReviews = userReviews.filter(review => review.id !== reviewId)
@@ -201,7 +203,7 @@ export const reviewsService = {
   },
 
   // Search reviews by content
-  searchReviews: (itemId, mediaType, query) => {
+  searchReviews: (itemId: number, mediaType: 'movie' | 'tv', query: string): Review[] => {
     const reviews = reviewsService.getReviews(itemId, mediaType)
     if (!query) return reviews
     
@@ -213,14 +215,14 @@ export const reviewsService = {
   },
 
   // Sort reviews
-  sortReviews: (reviews, sortBy = 'newest') => {
+  sortReviews: (reviews: Review[], sortBy: 'newest' | 'oldest' | 'highest-rating' | 'lowest-rating' | 'most-helpful' = 'newest'): Review[] => {
     const sorted = [...reviews]
     
     switch (sortBy) {
       case 'newest':
-        return sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       case 'oldest':
-        return sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+        return sorted.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
       case 'highest-rating':
         return sorted.sort((a, b) => b.rating - a.rating)
       case 'lowest-rating':

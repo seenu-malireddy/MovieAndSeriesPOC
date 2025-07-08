@@ -1,4 +1,15 @@
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
+import { 
+  APIResponse, 
+  Movie, 
+  TVShow, 
+  MovieDetails, 
+  TVShowDetails, 
+  Genre,
+  Filters,
+  ImageSizeType,
+  ImageSize
+} from '../types'
 
 const BASE_URL = 'https://api.themoviedb.org/3'
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p'
@@ -14,7 +25,7 @@ const tmdbApi = axios.create({
 })
 
 // Image size configurations
-export const IMAGE_SIZES = {
+export const IMAGE_SIZES: Record<ImageSizeType, Record<ImageSize, string>> = {
   poster: {
     small: 'w154',
     medium: 'w342',
@@ -36,27 +47,42 @@ export const IMAGE_SIZES = {
 }
 
 // Helper function to get full image URL
-export const getImageUrl = (path, size = 'medium', type = 'poster') => {
+export const getImageUrl = (
+  path: string | null, 
+  size: ImageSize = 'medium', 
+  type: ImageSizeType = 'poster'
+): string | null => {
   if (!path) return null
   return `${IMAGE_BASE_URL}/${IMAGE_SIZES[type][size]}${path}`
+}
+
+interface DiscoverParams {
+  page?: number
+  sort_by?: string
+  with_genres?: string | number
+  primary_release_year?: string | number
+  first_air_date_year?: string | number
+  'vote_average.gte'?: number
+  'vote_average.lte'?: number
+  [key: string]: string | number | undefined
 }
 
 // API functions
 export const api = {
   // Movies
-  getPopularMovies: (page = 1) => 
+  getPopularMovies: (page: number = 1): Promise<AxiosResponse<APIResponse<Movie>>> => 
     tmdbApi.get('/movie/popular', { params: { page } }),
     
-  getTopRatedMovies: (page = 1) => 
+  getTopRatedMovies: (page: number = 1): Promise<AxiosResponse<APIResponse<Movie>>> => 
     tmdbApi.get('/movie/top_rated', { params: { page } }),
     
-  getUpcomingMovies: (page = 1) => 
+  getUpcomingMovies: (page: number = 1): Promise<AxiosResponse<APIResponse<Movie>>> => 
     tmdbApi.get('/movie/upcoming', { params: { page } }),
     
-  getNowPlayingMovies: (page = 1) => 
+  getNowPlayingMovies: (page: number = 1): Promise<AxiosResponse<APIResponse<Movie>>> => 
     tmdbApi.get('/movie/now_playing', { params: { page } }),
     
-  getMovieDetails: (movieId) => 
+  getMovieDetails: (movieId: string | number): Promise<AxiosResponse<MovieDetails>> => 
     tmdbApi.get(`/movie/${movieId}`, { 
       params: { 
         append_to_response: 'credits,videos,reviews,similar' 
@@ -64,16 +90,16 @@ export const api = {
     }),
     
   // TV Shows
-  getPopularTVShows: (page = 1) => 
+  getPopularTVShows: (page: number = 1): Promise<AxiosResponse<APIResponse<TVShow>>> => 
     tmdbApi.get('/tv/popular', { params: { page } }),
     
-  getTopRatedTVShows: (page = 1) => 
+  getTopRatedTVShows: (page: number = 1): Promise<AxiosResponse<APIResponse<TVShow>>> => 
     tmdbApi.get('/tv/top_rated', { params: { page } }),
     
-  getOnTheAirTVShows: (page = 1) => 
+  getOnTheAirTVShows: (page: number = 1): Promise<AxiosResponse<APIResponse<TVShow>>> => 
     tmdbApi.get('/tv/on_the_air', { params: { page } }),
     
-  getTVShowDetails: (tvId) => 
+  getTVShowDetails: (tvId: string | number): Promise<AxiosResponse<TVShowDetails>> => 
     tmdbApi.get(`/tv/${tvId}`, { 
       params: { 
         append_to_response: 'credits,videos,reviews,similar' 
@@ -81,44 +107,47 @@ export const api = {
     }),
     
   // Search
-  searchMulti: (query, page = 1) => 
+  searchMulti: (query: string, page: number = 1): Promise<AxiosResponse<APIResponse<Movie | TVShow>>> => 
     tmdbApi.get('/search/multi', { params: { query, page } }),
     
-  searchMovies: (query, page = 1) => 
+  searchMovies: (query: string, page: number = 1): Promise<AxiosResponse<APIResponse<Movie>>> => 
     tmdbApi.get('/search/movie', { params: { query, page } }),
     
-  searchTVShows: (query, page = 1) => 
+  searchTVShows: (query: string, page: number = 1): Promise<AxiosResponse<APIResponse<TVShow>>> => 
     tmdbApi.get('/search/tv', { params: { query, page } }),
     
   // Discover
-  discoverMovies: (params = {}) => 
+  discoverMovies: (params: DiscoverParams = {}): Promise<AxiosResponse<APIResponse<Movie>>> => 
     tmdbApi.get('/discover/movie', { params }),
     
-  discoverTVShows: (params = {}) => 
+  discoverTVShows: (params: DiscoverParams = {}): Promise<AxiosResponse<APIResponse<TVShow>>> => 
     tmdbApi.get('/discover/tv', { params }),
     
   // Genres
-  getMovieGenres: () => 
+  getMovieGenres: (): Promise<AxiosResponse<{ genres: Genre[] }>> => 
     tmdbApi.get('/genre/movie/list'),
     
-  getTVGenres: () => 
+  getTVGenres: (): Promise<AxiosResponse<{ genres: Genre[] }>> => 
     tmdbApi.get('/genre/tv/list'),
     
   // Configuration
-  getConfiguration: () => 
+  getConfiguration: (): Promise<AxiosResponse<any>> => 
     tmdbApi.get('/configuration'),
     
   // Trending
-  getTrending: (mediaType = 'all', timeWindow = 'day') => 
+  getTrending: (
+    mediaType: 'all' | 'movie' | 'tv' = 'all', 
+    timeWindow: 'day' | 'week' = 'day'
+  ): Promise<AxiosResponse<APIResponse<Movie | TVShow>>> => 
     tmdbApi.get(`/trending/${mediaType}/${timeWindow}`),
 }
 
 // Helper functions for filtering and sorting
 export const filterHelpers = {
   // Get years for filter dropdown
-  getYearOptions: () => {
+  getYearOptions: (): number[] => {
     const currentYear = new Date().getFullYear()
-    const years = []
+    const years: number[] = []
     for (let year = currentYear; year >= 1900; year--) {
       years.push(year)
     }
@@ -126,8 +155,8 @@ export const filterHelpers = {
   },
   
   // Build discover parameters
-  buildDiscoverParams: (filters = {}) => {
-    const params = {
+  buildDiscoverParams: (filters: Filters = {} as Filters): DiscoverParams => {
+    const params: DiscoverParams = {
       page: filters.page || 1,
       sort_by: filters.sortBy || 'popularity.desc',
     }

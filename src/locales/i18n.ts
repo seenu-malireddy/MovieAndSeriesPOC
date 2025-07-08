@@ -2,7 +2,16 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 
-const resources = {
+interface TranslationResource {
+  translation: Record<string, string>
+}
+
+interface Resources {
+  en: TranslationResource
+  ar: TranslationResource
+}
+
+const resources: Resources = {
   en: {
     translation: {
       // Navigation
@@ -58,7 +67,6 @@ const resources = {
       filterBy: 'Filter by',
       sortBy: 'Sort by',
       popularity: 'Popularity',
-      releaseDate: 'Release Date',
       voteAverage: 'Rating',
       
       // Messages
@@ -132,7 +140,6 @@ const resources = {
       filterBy: 'تصفية حسب',
       sortBy: 'ترتيب حسب',
       popularity: 'الشعبية',
-      releaseDate: 'تاريخ الإصدار',
       voteAverage: 'التقييم',
       
       // Messages
@@ -169,7 +176,7 @@ i18n
   })
 
 // Update document direction based on language
-i18n.on('languageChanged', (lng) => {
+i18n.on('languageChanged', (lng: string) => {
   document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr'
   document.documentElement.lang = lng
 })

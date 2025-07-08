@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
+import { AuthContextType, User, SignUpData } from '../types'
 
-const AuthContext = createContext()
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext)
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider')
@@ -12,8 +13,12 @@ export const useAuth = () => {
   return context
 }
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
+interface AuthProviderProps {
+  children: ReactNode
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const { t } = useTranslation()
 
@@ -31,7 +36,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(false)
   }, [])
 
-  const signIn = async (email, password) => {
+  const signIn = async (email: string, password: string): Promise<User> => {
     try {
       setLoading(true)
       
@@ -42,7 +47,7 @@ export const AuthProvider = ({ children }) => {
       const users = JSON.parse(localStorage.getItem('screenscene_users') || '[]')
       
       // Find user with matching email and password
-      const foundUser = users.find(u => u.email === email && u.password === password)
+      const foundUser = users.find((u: any) => u.email === email && u.password === password)
       
       if (!foundUser) {
         throw new Error('Invalid email or password')
@@ -57,14 +62,15 @@ export const AuthProvider = ({ children }) => {
       
       return userWithoutPassword
     } catch (error) {
-      toast.error(error.message)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to sign in'
+      toast.error(errorMessage)
       throw error
     } finally {
       setLoading(false)
     }
   }
 
-  const signUp = async (userData) => {
+  const signUp = async (userData: SignUpData): Promise<User> => {
     try {
       setLoading(true)
       
@@ -75,12 +81,12 @@ export const AuthProvider = ({ children }) => {
       const users = JSON.parse(localStorage.getItem('screenscene_users') || '[]')
       
       // Check if user already exists
-      if (users.find(u => u.email === userData.email)) {
+      if (users.find((u: any) => u.email === userData.email)) {
         throw new Error('User with this email already exists')
       }
       
       // Create new user
-      const newUser = {
+      const newUser: User & { password: string } = {
         id: Date.now().toString(),
         ...userData,
         createdAt: new Date().toISOString()
@@ -99,25 +105,30 @@ export const AuthProvider = ({ children }) => {
       
       return userWithoutPassword
     } catch (error) {
-      toast.error(error.message)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create account'
+      toast.error(errorMessage)
       throw error
     } finally {
       setLoading(false)
     }
   }
 
-  const signOut = () => {
+  const signOut = (): void => {
     setUser(null)
     localStorage.removeItem('screenscene_user')
     toast.success('Signed out successfully')
   }
 
-  const updateProfile = async (updatedData) => {
+  const updateProfile = async (updatedData: Partial<User>): Promise<User> => {
     try {
       setLoading(true)
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500))
+      
+      if (!user) {
+        throw new Error('No user logged in')
+      }
       
       const updatedUser = { ...user, ...updatedData }
       setUser(updatedUser)
@@ -125,7 +136,7 @@ export const AuthProvider = ({ children }) => {
       
       // Also update in users array
       const users = JSON.parse(localStorage.getItem('screenscene_users') || '[]')
-      const userIndex = users.findIndex(u => u.id === user.id)
+      const userIndex = users.findIndex((u: any) => u.id === user.id)
       if (userIndex !== -1) {
         users[userIndex] = { ...users[userIndex], ...updatedData }
         localStorage.setItem('screenscene_users', JSON.stringify(users))
@@ -141,7 +152,7 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const value = {
+  const value: AuthContextType = {
     user,
     loading,
     signIn,

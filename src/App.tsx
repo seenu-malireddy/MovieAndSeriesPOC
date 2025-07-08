@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import Layout from './components/Layout'
 
-// Pages
+// Pages - These will be created as TypeScript files
 import Home from './pages/Home'
 import SignIn from './pages/SignIn'
 import SignUp from './pages/SignUp'
@@ -16,7 +16,7 @@ import Search from './pages/Search'
 // Protected Route component
 import ProtectedRoute from './components/ProtectedRoute'
 
-function App() {
+const App: React.FC = () => {
   return (
     <AuthProvider>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">

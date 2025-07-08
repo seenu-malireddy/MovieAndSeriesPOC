@@ -1,7 +1,9 @@
+import { FavoriteItem, MediaItem } from '../types'
+
 // Favorites Service - manages favorite movies and TV shows
 export const favoritesService = {
   // Get all favorites for a user
-  getFavorites: (userId) => {
+  getFavorites: (userId: string): FavoriteItem[] => {
     if (!userId) return []
     
     try {
@@ -14,7 +16,7 @@ export const favoritesService = {
   },
 
   // Add item to favorites
-  addToFavorites: (userId, item) => {
+  addToFavorites: (userId: string, item: MediaItem & { media_type?: 'movie' | 'tv' }): boolean => {
     if (!userId || !item) return false
     
     try {
@@ -28,9 +30,13 @@ export const favoritesService = {
       if (exists) return false
       
       // Add timestamp and ensure media_type is set
-      const favoriteItem = {
+      const favoriteItem: FavoriteItem = {
         ...item,
-        media_type: item.media_type || (item.title ? 'movie' : 'tv'),
+        title: 'title' in item ? item.title : undefined,
+        name: 'name' in item ? item.name : undefined,
+        release_date: 'release_date' in item ? item.release_date : undefined,
+        first_air_date: 'first_air_date' in item ? item.first_air_date : undefined,
+        media_type: item.media_type || ('title' in item ? 'movie' : 'tv'),
         addedAt: new Date().toISOString()
       }
       
@@ -48,7 +54,7 @@ export const favoritesService = {
   },
 
   // Remove item from favorites
-  removeFromFavorites: (userId, itemId, mediaType) => {
+  removeFromFavorites: (userId: string, itemId: number, mediaType: 'movie' | 'tv'): boolean => {
     if (!userId || !itemId) return false
     
     try {
@@ -70,7 +76,7 @@ export const favoritesService = {
   },
 
   // Check if item is in favorites
-  isFavorite: (userId, itemId, mediaType) => {
+  isFavorite: (userId: string, itemId: number, mediaType: 'movie' | 'tv'): boolean => {
     if (!userId || !itemId) return false
     
     const favorites = favoritesService.getFavorites(userId)
@@ -80,12 +86,12 @@ export const favoritesService = {
   },
 
   // Get favorites count
-  getFavoritesCount: (userId) => {
+  getFavoritesCount: (userId: string): number => {
     return favoritesService.getFavorites(userId).length
   },
 
   // Clear all favorites
-  clearFavorites: (userId) => {
+  clearFavorites: (userId: string): boolean => {
     if (!userId) return false
     
     try {
@@ -98,13 +104,13 @@ export const favoritesService = {
   },
 
   // Get favorites by type
-  getFavoritesByType: (userId, mediaType) => {
+  getFavoritesByType: (userId: string, mediaType: 'movie' | 'tv'): FavoriteItem[] => {
     const favorites = favoritesService.getFavorites(userId)
     return favorites.filter(fav => fav.media_type === mediaType)
   },
 
   // Export favorites (for backup/sharing)
-  exportFavorites: (userId) => {
+  exportFavorites: (userId: string) => {
     const favorites = favoritesService.getFavorites(userId)
     return {
       userId,
@@ -115,7 +121,7 @@ export const favoritesService = {
   },
 
   // Import favorites (from backup)
-  importFavorites: (userId, favoritesData) => {
+  importFavorites: (userId: string, favoritesData: { favorites: FavoriteItem[] }): boolean => {
     if (!userId || !favoritesData || !Array.isArray(favoritesData.favorites)) {
       return false
     }
