@@ -2,7 +2,7 @@ import React from 'react'
 import { AlertCircle, RefreshCw } from 'lucide-react'
 import { ErrorMessageProps } from '../types'
 
-const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, onRetry }) => {
+const ErrorMessage = ({ message, onRetry }: ErrorMessageProps) => {
   return (
     <div className="flex flex-col items-center justify-center py-12">
       <div className="bg-red-50 dark:bg-red-900/20 rounded-full p-3 mb-4">

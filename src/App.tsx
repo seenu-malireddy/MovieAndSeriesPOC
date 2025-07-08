@@ -16,7 +16,7 @@ import Search from './pages/Search'
 // Protected Route component
 import ProtectedRoute from './components/ProtectedRoute'
 
-const App: React.FC = () => {
+const App = () => {
   return (
     <AuthProvider>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
