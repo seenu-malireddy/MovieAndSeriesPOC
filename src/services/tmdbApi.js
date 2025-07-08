@@ -1,0 +1,156 @@
+import axios from 'axios'
+
+const BASE_URL = 'https://api.themoviedb.org/3'
+const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p'
+
+// You'll need to get your API key from https://www.themoviedb.org/settings/api
+const API_KEY = import.meta.env.VITE_TMDB_API_KEY || 'your_api_key_here'
+
+const tmdbApi = axios.create({
+  baseURL: BASE_URL,
+  params: {
+    api_key: API_KEY,
+  },
+})
+
+// Image size configurations
+export const IMAGE_SIZES = {
+  poster: {
+    small: 'w154',
+    medium: 'w342',
+    large: 'w500',
+    original: 'original'
+  },
+  backdrop: {
+    small: 'w300',
+    medium: 'w780',
+    large: 'w1280',
+    original: 'original'
+  },
+  profile: {
+    small: 'w45',
+    medium: 'w185',
+    large: 'h632',
+    original: 'original'
+  }
+}
+
+// Helper function to get full image URL
+export const getImageUrl = (path, size = 'medium', type = 'poster') => {
+  if (!path) return null
+  return `${IMAGE_BASE_URL}/${IMAGE_SIZES[type][size]}${path}`
+}
+
+// API functions
+export const api = {
+  // Movies
+  getPopularMovies: (page = 1) => 
+    tmdbApi.get('/movie/popular', { params: { page } }),
+    
+  getTopRatedMovies: (page = 1) => 
+    tmdbApi.get('/movie/top_rated', { params: { page } }),
+    
+  getUpcomingMovies: (page = 1) => 
+    tmdbApi.get('/movie/upcoming', { params: { page } }),
+    
+  getNowPlayingMovies: (page = 1) => 
+    tmdbApi.get('/movie/now_playing', { params: { page } }),
+    
+  getMovieDetails: (movieId) => 
+    tmdbApi.get(`/movie/${movieId}`, { 
+      params: { 
+        append_to_response: 'credits,videos,reviews,similar' 
+      } 
+    }),
+    
+  // TV Shows
+  getPopularTVShows: (page = 1) => 
+    tmdbApi.get('/tv/popular', { params: { page } }),
+    
+  getTopRatedTVShows: (page = 1) => 
+    tmdbApi.get('/tv/top_rated', { params: { page } }),
+    
+  getOnTheAirTVShows: (page = 1) => 
+    tmdbApi.get('/tv/on_the_air', { params: { page } }),
+    
+  getTVShowDetails: (tvId) => 
+    tmdbApi.get(`/tv/${tvId}`, { 
+      params: { 
+        append_to_response: 'credits,videos,reviews,similar' 
+      } 
+    }),
+    
+  // Search
+  searchMulti: (query, page = 1) => 
+    tmdbApi.get('/search/multi', { params: { query, page } }),
+    
+  searchMovies: (query, page = 1) => 
+    tmdbApi.get('/search/movie', { params: { query, page } }),
+    
+  searchTVShows: (query, page = 1) => 
+    tmdbApi.get('/search/tv', { params: { query, page } }),
+    
+  // Discover
+  discoverMovies: (params = {}) => 
+    tmdbApi.get('/discover/movie', { params }),
+    
+  discoverTVShows: (params = {}) => 
+    tmdbApi.get('/discover/tv', { params }),
+    
+  // Genres
+  getMovieGenres: () => 
+    tmdbApi.get('/genre/movie/list'),
+    
+  getTVGenres: () => 
+    tmdbApi.get('/genre/tv/list'),
+    
+  // Configuration
+  getConfiguration: () => 
+    tmdbApi.get('/configuration'),
+    
+  // Trending
+  getTrending: (mediaType = 'all', timeWindow = 'day') => 
+    tmdbApi.get(`/trending/${mediaType}/${timeWindow}`),
+}
+
+// Helper functions for filtering and sorting
+export const filterHelpers = {
+  // Get years for filter dropdown
+  getYearOptions: () => {
+    const currentYear = new Date().getFullYear()
+    const years = []
+    for (let year = currentYear; year >= 1900; year--) {
+      years.push(year)
+    }
+    return years
+  },
+  
+  // Build discover parameters
+  buildDiscoverParams: (filters = {}) => {
+    const params = {
+      page: filters.page || 1,
+      sort_by: filters.sortBy || 'popularity.desc',
+    }
+    
+    if (filters.genre) {
+      params.with_genres = filters.genre
+    }
+    
+    if (filters.year) {
+      params.primary_release_year = filters.year // for movies
+      params.first_air_date_year = filters.year // for TV shows
+    }
+    
+    if (filters.minRating) {
+      params['vote_average.gte'] = filters.minRating
+    }
+    
+    if (filters.maxRating) {
+      params['vote_average.lte'] = filters.maxRating
+    }
+    
+    return params
+  }
+}
+
+export default api
