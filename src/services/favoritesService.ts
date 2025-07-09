@@ -1,8 +1,6 @@
 import { FavoriteItem, MediaItem } from '../types'
 
-// Favorites Service - manages favorite movies and TV shows
 export const favoritesService = {
-  // Get all favorites for a user
   getFavorites: (userId: string): FavoriteItem[] => {
     if (!userId) return []
     
@@ -15,21 +13,17 @@ export const favoritesService = {
     }
   },
 
-  // Add item to favorites
   addToFavorites: (userId: string, item: MediaItem & { media_type?: 'movie' | 'tv' }): boolean => {
     if (!userId || !item) return false
     
     try {
       const favorites = favoritesService.getFavorites(userId)
       
-      // Check if item is already in favorites
       const exists = favorites.some(fav => 
         fav.id === item.id && fav.media_type === item.media_type
       )
       
       if (exists) return false
-      
-      // Add timestamp and ensure media_type is set
       const favoriteItem: FavoriteItem = {
         ...item,
         title: 'title' in item ? item.title : undefined,
@@ -53,7 +47,6 @@ export const favoritesService = {
     }
   },
 
-  // Remove item from favorites
   removeFromFavorites: (userId: string, itemId: number, mediaType: 'movie' | 'tv'): boolean => {
     if (!userId || !itemId) return false
     

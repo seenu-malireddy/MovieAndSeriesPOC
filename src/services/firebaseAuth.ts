@@ -10,8 +10,6 @@ import {
 } from 'firebase/auth'
 import { auth } from '../config/firebase'
 import { User, SignUpData } from '../types'
-
-// Convert Firebase User to our User type
 const convertFirebaseUser = (firebaseUser: FirebaseUser): User => {
   const displayName = firebaseUser.displayName || ''
   const [firstName, ...lastNameParts] = displayName.split(' ')
@@ -26,26 +24,19 @@ const convertFirebaseUser = (firebaseUser: FirebaseUser): User => {
 }
 
 export class FirebaseAuthService {
-  // Sign up with email and password
   static async signUp(userData: SignUpData): Promise<User> {
     try {
       const { email, password, firstName, lastName } = userData
       
-      // Create user account
       const userCredential = await createUserWithEmailAndPassword(auth, email, password)
       const firebaseUser = userCredential.user
       
-      // Update profile with display name
       const displayName = `${firstName} ${lastName}`.trim()
       await updateProfile(firebaseUser, { displayName })
-      
-      // Send email verification
       await sendEmailVerification(firebaseUser)
       
-      // Return our User type
       return convertFirebaseUser(firebaseUser)
     } catch (error: any) {
-      // Handle Firebase auth errors
       switch (error.code) {
         case 'auth/email-already-in-use':
           throw new Error('An account with this email already exists')
@@ -59,13 +50,11 @@ export class FirebaseAuthService {
     }
   }
 
-  // Sign in with email and password
   static async signIn(email: string, password: string): Promise<User> {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
       return convertFirebaseUser(userCredential.user)
     } catch (error: any) {
-      // Handle Firebase auth errors
       switch (error.code) {
         case 'auth/user-not-found':
         case 'auth/wrong-password':
@@ -81,7 +70,6 @@ export class FirebaseAuthService {
     }
   }
 
-  // Sign out
   static async signOut(): Promise<void> {
     try {
       await firebaseSignOut(auth)
@@ -90,7 +78,6 @@ export class FirebaseAuthService {
     }
   }
 
-  // Update user profile
   static async updateProfile(userData: Partial<User>): Promise<User> {
     try {
       const currentUser = auth.currentUser
@@ -98,7 +85,6 @@ export class FirebaseAuthService {
         throw new Error('No user logged in')
       }
 
-      // Update display name if firstName or lastName changed
       if (userData.firstName || userData.lastName) {
         const currentDisplayName = currentUser.displayName || ''
         const [currentFirstName, ...currentLastNameParts] = currentDisplayName.split(' ')
@@ -110,14 +96,12 @@ export class FirebaseAuthService {
         await updateProfile(currentUser, { displayName: newDisplayName })
       }
 
-      // Return updated user
       return convertFirebaseUser(currentUser)
     } catch (error: any) {
       throw new Error(error.message || 'Failed to update profile')
     }
   }
 
-  // Send password reset email
   static async resetPassword(email: string): Promise<void> {
     try {
       await sendPasswordResetEmail(auth, email)
@@ -133,7 +117,6 @@ export class FirebaseAuthService {
     }
   }
 
-  // Send email verification
   static async sendEmailVerification(): Promise<void> {
     try {
       const currentUser = auth.currentUser
@@ -146,13 +129,11 @@ export class FirebaseAuthService {
     }
   }
 
-  // Get current user
   static getCurrentUser(): User | null {
     const firebaseUser = auth.currentUser
     return firebaseUser ? convertFirebaseUser(firebaseUser) : null
   }
 
-  // Listen to auth state changes
   static onAuthStateChanged(callback: (user: User | null) => void): () => void {
     return onAuthStateChanged(auth, (firebaseUser) => {
       const user = firebaseUser ? convertFirebaseUser(firebaseUser) : null
@@ -160,12 +141,10 @@ export class FirebaseAuthService {
     })
   }
 
-  // Check if user is authenticated
   static isAuthenticated(): boolean {
     return !!auth.currentUser
   }
 
-  // Check if email is verified
   static isEmailVerified(): boolean {
     return auth.currentUser?.emailVerified || false
   }

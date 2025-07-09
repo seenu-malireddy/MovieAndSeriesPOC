@@ -1,8 +1,6 @@
 import { Review, ReviewData, ReviewStats } from '../types'
 
-// Reviews Service - manages user reviews for movies and TV shows
 export const reviewsService = {
-  // Get all reviews for a specific item
   getReviews: (itemId: number, mediaType: 'movie' | 'tv'): Review[] => {
     if (!itemId || !mediaType) return []
     

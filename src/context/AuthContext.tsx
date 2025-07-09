@@ -24,13 +24,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    // Listen to Firebase auth state changes
     const unsubscribe = FirebaseAuthService.onAuthStateChanged((firebaseUser) => {
       setUser(firebaseUser)
       setLoading(false)
     })
 
-    // Clean up listener on unmount
     return () => unsubscribe()
   }, [])
 
@@ -57,8 +55,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       const user = await FirebaseAuthService.signUp(userData)
       toast.success(t('signUpSuccess'))
-      
-      // Show email verification message
       toast.success('Please check your email to verify your account')
       
       return user
