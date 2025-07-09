@@ -14,8 +14,8 @@ import {
 const BASE_URL = 'https://api.themoviedb.org/3'
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p'
 
-// You'll need to get your API key from https://www.themoviedb.org/settings/api
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY || 'your_api_key_here'
+// TMDb API key
+const API_KEY = '628d2272f107f1dff3aa874b00ad2c8b'
 
 const tmdbApi = axios.create({
   baseURL: BASE_URL,

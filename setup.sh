@@ -7,14 +7,8 @@ echo "=================================================="
 echo "📦 Installing dependencies..."
 npm install
 
-# Create .env file if it doesn't exist
-if [ ! -f .env ]; then
-    echo "🔧 Creating environment file..."
-    cp .env.example .env
-    echo "✅ Environment file created with TMDb API key"
-else
-    echo "✅ Environment file already exists"
-fi
+# API key is hardcoded in the project
+echo "✅ TMDb API key is already configured in the code"
 
 # Type check
 echo "🔍 Running TypeScript type check..."

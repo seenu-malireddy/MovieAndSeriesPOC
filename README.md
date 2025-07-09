@@ -45,4 +45,4 @@ npm run dev
 
 ## Notes
 
-The movie data comes from TMDb API. You can browse movies, save them to favorites, and write reviews. Everything saves in your browser.
+The movie data comes from TMDb API. The API key is already included in the code. You can browse movies, save them to favorites, and write reviews. Everything saves in your browser.

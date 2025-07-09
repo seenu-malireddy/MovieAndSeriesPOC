@@ -10,7 +10,7 @@ The ScreenScene project has been successfully converted from JavaScript to TypeS
 - **`tsconfig.node.json`** - Node.js tooling configuration  
 - **`vite.config.ts`** - Vite configuration in TypeScript
 - **`package.json`** - Updated with TypeScript dependencies and scripts
-- **`src/vite-env.d.ts`** - Environment variable type declarations
+- **`src/vite-env.d.ts`** - Vite type declarations
 
 ### 📁 TypeScript Files Created
 
@@ -112,10 +112,10 @@ interface AuthContextType {
    npm install
    ```
 
-2. **Environment Setup:**
+2. **API Configuration:**
    ```bash
-   # Environment will be automatically configured during setup
-   # TMDb API key is already included
+   # TMDb API key is hardcoded in the project
+   # No environment setup needed
    ```
 
 3. **Start Development:**
@@ -171,7 +171,7 @@ npm run build        # Build for production
 npm run preview      # Preview production build
 ```
 
-The project is now fully converted to TypeScript with a solid foundation for building out the remaining features. All core services, types, and structure are in place for rapid development of the complete ScreenScene application. **The TMDb API key is already configured and ready to use.**
+The project is now fully converted to TypeScript with a solid foundation for building out the remaining features. All core services, types, and structure are in place for rapid development of the complete ScreenScene application. **The TMDb API key is hardcoded in the project and ready to use.**
 
 ---
 
