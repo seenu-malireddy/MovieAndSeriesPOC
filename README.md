@@ -1,12 +1,12 @@
 # ScreenScene
 
-A movie and TV show website made with React and TypeScript.
+A movie and TV show website made with React, TypeScript, and Firebase Authentication.
 
 ## What it does
 
 - Browse movies and TV shows
 - Search for movies
-- Sign up and login
+- Sign up and login with Firebase Auth
 - Save favorites
 - Add reviews
 - Works in English and Arabic
@@ -31,6 +31,7 @@ npm run dev
 - TypeScript  
 - Vite
 - Tailwind CSS
+- Firebase Authentication
 - Movie database API
 
 ## Features
@@ -45,4 +46,8 @@ npm run dev
 
 ## Notes
 
-The movie data comes from TMDb API. The API key is already included in the code. You can browse movies, save them to favorites, and write reviews. Everything saves in your browser.
+The movie data comes from TMDb API. The API key is already included in the code. You can browse movies, save them to favorites, and write reviews. 
+
+**Authentication**: Uses Firebase Authentication for real user accounts. See `FIREBASE_SETUP.md` for configuration instructions.
+
+**Data Storage**: Favorites and reviews are currently stored in your browser. User accounts are managed by Firebase.

@@ -35,10 +35,14 @@ const Header = () => {
     i18n.changeLanguage(newLang)
   }
 
-  const handleSignOut = () => {
-    signOut()
-    setIsMenuOpen(false)
-    navigate('/')
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      setIsMenuOpen(false)
+      navigate('/')
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
   }
 
   const isActive = (path: string) => {

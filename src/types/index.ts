@@ -324,7 +324,7 @@ export interface AuthContextType {
   loading: boolean
   signIn: (email: string, password: string) => Promise<User>
   signUp: (userData: SignUpData) => Promise<User>
-  signOut: () => void
+  signOut: () => Promise<void>
   updateProfile: (data: Partial<User>) => Promise<User>
   isAuthenticated: boolean
 }

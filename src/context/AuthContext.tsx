@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { AuthContextType, User, SignUpData } from '../types'
+import FirebaseAuthService from '../services/firebaseAuth'
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
@@ -23,44 +24,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    // Check for existing user in localStorage
-    const savedUser = localStorage.getItem('screenscene_user')
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser))
-      } catch (error) {
-        console.error('Error parsing saved user:', error)
-        localStorage.removeItem('screenscene_user')
-      }
-    }
-    setLoading(false)
+    // Listen to Firebase auth state changes
+    const unsubscribe = FirebaseAuthService.onAuthStateChanged((firebaseUser) => {
+      setUser(firebaseUser)
+      setLoading(false)
+    })
+
+    // Clean up listener on unmount
+    return () => unsubscribe()
   }, [])
 
   const signIn = async (email: string, password: string): Promise<User> => {
     try {
       setLoading(true)
       
-      // Simulate API call - in real app, this would be an actual API request
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Get users from localStorage or create empty array
-      const users = JSON.parse(localStorage.getItem('screenscene_users') || '[]')
-      
-      // Find user with matching email and password
-      const foundUser = users.find((u: any) => u.email === email && u.password === password)
-      
-      if (!foundUser) {
-        throw new Error('Invalid email or password')
-      }
-      
-      // Remove password from user object before setting state
-      const { password: _, ...userWithoutPassword } = foundUser
-      
-      setUser(userWithoutPassword)
-      localStorage.setItem('screenscene_user', JSON.stringify(userWithoutPassword))
+      const user = await FirebaseAuthService.signIn(email, password)
       toast.success(t('signInSuccess'))
       
-      return userWithoutPassword
+      return user
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to sign in'
       toast.error(errorMessage)
@@ -74,36 +55,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setLoading(true)
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Get existing users or create empty array
-      const users = JSON.parse(localStorage.getItem('screenscene_users') || '[]')
-      
-      // Check if user already exists
-      if (users.find((u: any) => u.email === userData.email)) {
-        throw new Error('User with this email already exists')
-      }
-      
-      // Create new user
-      const newUser: User & { password: string } = {
-        id: Date.now().toString(),
-        ...userData,
-        createdAt: new Date().toISOString()
-      }
-      
-      // Save to users array
-      users.push(newUser)
-      localStorage.setItem('screenscene_users', JSON.stringify(users))
-      
-      // Remove password from user object before setting state
-      const { password: _, ...userWithoutPassword } = newUser
-      
-      setUser(userWithoutPassword)
-      localStorage.setItem('screenscene_user', JSON.stringify(userWithoutPassword))
+      const user = await FirebaseAuthService.signUp(userData)
       toast.success(t('signUpSuccess'))
       
-      return userWithoutPassword
+      // Show email verification message
+      toast.success('Please check your email to verify your account')
+      
+      return user
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to create account'
       toast.error(errorMessage)
@@ -113,39 +71,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }
 
-  const signOut = (): void => {
-    setUser(null)
-    localStorage.removeItem('screenscene_user')
-    toast.success('Signed out successfully')
+  const signOut = async (): Promise<void> => {
+    try {
+      await FirebaseAuthService.signOut()
+      toast.success('Signed out successfully')
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to sign out'
+      toast.error(errorMessage)
+      throw error
+    }
   }
 
   const updateProfile = async (updatedData: Partial<User>): Promise<User> => {
     try {
       setLoading(true)
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      if (!user) {
-        throw new Error('No user logged in')
-      }
-      
-      const updatedUser = { ...user, ...updatedData }
+      const updatedUser = await FirebaseAuthService.updateProfile(updatedData)
       setUser(updatedUser)
-      localStorage.setItem('screenscene_user', JSON.stringify(updatedUser))
-      
-      // Also update in users array
-      const users = JSON.parse(localStorage.getItem('screenscene_users') || '[]')
-      const userIndex = users.findIndex((u: any) => u.id === user.id)
-      if (userIndex !== -1) {
-        users[userIndex] = { ...users[userIndex], ...updatedData }
-        localStorage.setItem('screenscene_users', JSON.stringify(users))
-      }
       
       toast.success('Profile updated successfully')
       return updatedUser
     } catch (error) {
-      toast.error('Failed to update profile')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update profile'
+      toast.error(errorMessage)
       throw error
     } finally {
       setLoading(false)
